@@ -1,0 +1,149 @@
+; md VRAM tables
+vram_window_plane	EQU $a000
+vram_plane_a	EQU	$c000
+vram_plane_b	EQU	$e000
+vram_sprtbl	EQU	$f800
+vram_hscroll	EQU $fc00
+
+; z80 ram addresses
+z80start	EQU	$a00000
+
+; taken from https://wiki.megadrive.org/index.php?title=IO_Registers
+REG_VERSION	EQU	$a10001
+REG_DATA1	EQU	$a10003
+REG_DATA2	EQU	$a10005
+REG_DATA3	EQU	$a10007
+REG_CTRL1	EQU	$a10009
+REG_CTRL2	EQU	$a1000b
+REG_CTRL3	EQU	$a1000d
+REG_TXDATA1	EQU	$a1000f
+REG_RXDATA1	EQU	$a10011
+REG_S_CTRL1	EQU	$a10013
+REG_TXDATA2	EQU	$a10015
+REG_RXDATA2	EQU	$a10017
+REG_S_CTRL2	EQU	$a10019
+REG_TXDATA3	EQU	$a1001b
+REG_RXDATA3	EQU	$a1001d
+REG_S_CTRL3	EQU	$a1001f
+REG_LOCK	EQU	$a14000
+REG_TMSS	EQU	$a14101
+
+z80busreq	EQU	$a11100		; z80 bus rEQUest
+z80reset	EQU	$a11200		; z80 reset
+
+VDP_DATA	EQU	$c00000
+VDP_CTRL	EQU	$c00004
+VDP_HVCOUNT	EQU	$c00008
+VDP_DEBUG	EQU	$c0001c
+
+; ram addresses
+ip_start	EQU	$ff0000		;Initial Program start
+ip_end		EQU	$ffffff
+stack		EQU	$fffffd00	;$100 Stack pointer
+hint_on_ram	EQU	$ffffea00	;$100 H-int program
+map_dev_work	EQU $ffffeb00	;$C00 For Decomp Map Data
+swdata		EQU	$fffff602
+swdata1		EQU	$fffff604
+bitdevwk	EQU	$fffff700	;$200 use decomp data
+spr_list	EQU	$fffff900	;$280 Sprite list
+color_ram	EQU	$fffffb80	;$80 color ram copy
+;Stack		EQU	$fffffd00	;$100 For Stack
+os_sys_ram	EQU	$fffffd00	;$200 OS SYStem RAM area
+;for modem	EQU $ffffff00	;100 use ark for modem
+
+; OS system ram assign
+os_sys_ram_reset	EQU	os_sys_ram		;6: reset jump table
+os_sys_ram_mlevel6	EQU	os_sys_ram_reset+6	;V interrupt
+os_sys_ram_mlevel4	EQU	os_sys_ram_mlevel6+6	;H interrupt
+os_sys_ram_mlevel2	EQU	os_sys_ram_mlevel4+6	;external interrupt
+os_sys_ram_mtrap00	EQU	os_sys_ram_mlevel2+6	;TRAP #00
+os_sys_ram_mtrap01	EQU	os_sys_ram_mtrap00+6
+os_sys_ram_mtrap02	EQU	os_sys_ram_mtrap01+6
+os_sys_ram_mtrap03	EQU	os_sys_ram_mtrap02+6
+os_sys_ram_mtrap04	EQU	os_sys_ram_mtrap03+6
+os_sys_ram_mtrap05	EQU	os_sys_ram_mtrap04+6
+os_sys_ram_mtrap06	EQU	os_sys_ram_mtrap05+6
+os_sys_ram_mtrap07	EQU	os_sys_ram_mtrap06+6
+os_sys_ram_mtrap08	EQU	os_sys_ram_mtrap07+6
+os_sys_ram_mtrap09	EQU	os_sys_ram_mtrap08+6
+os_sys_ram_mtrap10	EQU	os_sys_ram_mtrap09+6
+os_sys_ram_mtrap11	EQU	os_sys_ram_mtrap10+6
+os_sys_ram_mtrap12	EQU	os_sys_ram_mtrap11+6
+os_sys_ram_mtrap13	EQU	os_sys_ram_mtrap12+6
+os_sys_ram_mtrap14	EQU	os_sys_ram_mtrap13+6
+os_sys_ram_mtrap15	EQU	os_sys_ram_mtrap14+6
+os_sys_ram_mchkerr	EQU	os_sys_ram_mtrap15+6	;chk
+os_sys_ram_madderr	EQU	os_sys_ram_mchkerr+6	;address error
+os_sys_ram_mcoderr	EQU	os_sys_ram_mchkerr+6	;undefined code
+os_sys_ram_mdiverr	EQU	os_sys_ram_mcoderr+6	;divide error
+os_sys_ram_mtrcerr	EQU	os_sys_ram_mdiverr+6
+os_sys_ram_mnocod0	EQU	os_sys_ram_mtrcerr+6
+os_sys_ram_mnocod1	EQU	os_sys_ram_mnocod0+6
+os_sys_ram_msoverr	EQU	os_sys_ram_mnocod1+6
+os_sys_ram_mtrace		EQU	os_sys_ram_msoverr+6
+os_sys_ram_mint_ex	EQU	os_sys_ram_mtrace+6
+
+;VDP reg data
+rg0_dat		EQU	os_sys_ram_mint_ex+6
+rg1_dat		EQU	rg0_dat+2
+rg2_dat		EQU	rg1_dat+2
+rg3_dat		EQU	rg2_dat+2
+rg4_dat		EQU	rg3_dat+2
+rg5_dat		EQU	rg4_dat+2
+rg6_dat		EQU	rg5_dat+2
+rg7_dat		EQU	rg6_dat+2
+rg8_dat		EQU	rg7_dat+2
+rg9_dat		EQU	rg8_dat+2
+rg10_dat	EQU	rg9_dat+2
+rg11_dat	EQU	rg10_dat+2
+rg12_dat	EQU	rg11_dat+2
+rg13_dat	EQU	rg12_dat+2
+rg14_dat	EQU	rg13_dat+2
+rg15_dat	EQU	rg14_dat+2
+rg16_dat	EQU	rg15_dat+2
+rg17_dat	EQU	rg16_dat+2
+rg18_dat	EQU	rg17_dat+2
+
+; actor equates
+actno		EQU	$00	; actor number
+actflg		EQU	$01	; actor flag
+sproffset	EQU	$02	; sprite offset
+patbase		EQU	$04	; pattern base
+xposi		EQU	$08	; x position
+yposi		EQU	$0c	; y position
+xspeed		EQU	$10	; x speed (velocity)
+yspeed		EQU	$12	; y speed (velocity)
+mspeed		EQU	$14
+sprvsize	EQU	$16	; sprite vertical size
+sprhsize	EQU	$17	; sprite horizontal size
+sprpri		EQU	$18	; sprite priority
+sprhs		EQU	$19	; sprite horizontal
+patno		EQU	$1a ; pattern number
+patcnt		EQU	$1b	; pattern count
+mstno		EQU	$1c
+;	EQU $1d
+pattim		EQU	$1e	; pattern time
+pattimm		EQU	$1f	; pattern timer
+colino		EQU	$20	; collision number
+colicnt		EQU	$21	; collision count
+cddat		EQU	$22	; control data
+cdsts		EQU	$23	; control
+r_no0		EQU	$24	; routine number 0
+r_no1		EQU	$25	; routine number 1
+direc		EQU	$26
+userflag	EQU	$28	; user flag
+;dummy
+;actfree
+;	EQU	$40
+
+; player actor equates
+;	EQU	$30
+;	EQU	$32
+speeduptimer	EQU	$34
+footdir		EQU	$36
+;	EQU	$37
+;	EQU	$38
+;	EQU	$3a
+;	EQU	$3c
+;	EQU	$3d
+;	EQU	$3e

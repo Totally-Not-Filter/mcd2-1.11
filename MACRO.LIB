@@ -1,0 +1,31 @@
+; ---------------------------------------------------------------------------
+; Align and pad
+; input: length to align to
+; ---------------------------------------------------------------------------
+align	macro
+	dcb.b (\1-(*%\1))%\1,$ff
+	endm
+	
+align0	macro
+	dcb.b (\1-(*%\1))%\1,0
+	endm
+
+;=======================================;
+;	   Z80 BUS REQUEST ON		;
+;=======================================;
+z80bus_on	macro
+	move.w	#$100,z80busreq
+	endm
+
+;=======================================;
+;	   Z80 BUS REQUEST ON		;
+;=======================================;
+z80bus_off	macro
+	move.w	#$000,z80busreq
+	endm
+
+z80bus_wait	macro
+?loop1:
+	btst.b	#0,z80busreq		; if bit on then bus req ok.
+	bne.s	?loop1
+	endm
