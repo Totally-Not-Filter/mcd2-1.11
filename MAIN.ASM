@@ -220,12 +220,12 @@ loc_43e:
 		move.w	VDP_CTRL,d3
 		btst	#1,d3
 		bne.s	loc_43e
-		bsr.w	$716
+		bsr.w	sub_716
 		bra.w	loc_576
 		include	source/icd_blk4.prg
 		jsr	$936
 		jsr	$982
-		bsr.w	$716
+		bsr.w	sub_716
 		bra.s	loc_584
 loc_576:
 		cmpi.w	#$4ef9,os_sys_ram_reset
@@ -234,13 +234,13 @@ loc_576:
 loc_584:
 		moveq	#-1,d1
 		bsr.w	$1308
-		bsr.w	$64e
-		bsr.w	$6f8
+		bsr.w	sub_64e
+		bsr.w	sub_6f8
 loc_592:
 		jsr	sub_3a4(pc)
 		bsr.w	$101e
 		jsr	z80load.w
-		bsr.w	$69e
+		bsr.w	sub_69e
 		jsr	$8d6
 		bsr.w	$1086
 		lea	$a1200f,a4
@@ -251,7 +251,7 @@ loc_5b0:
 		moveq	#4,d1
 		jsr	$12be(pc)
 		moveq	#4,d0
-		jsr	$644.l
+		jsr	sub_644.l
 loc_5c4:
 		lea	$fffffdda,a0
 		move.w	(a0),d0
@@ -281,7 +281,7 @@ loc_604:
 		jsr	sub_3a4(pc)
 		bsr.w	$101e
 		jsr	z80load.w
-		bsr.w	$69e
+		bsr.w	sub_69e
 		jsr	$8d6
 		bsr.w	$1086
 		lea	$a1200f,a4
@@ -299,6 +299,107 @@ sub_644:
 		andi.w	#$1c,d0
 		move.w	d0,$fffffdda
 		rts
+sub_64e:
+		lea	$a12001,a5
+		lea	1(a5),a6
+loc_658:
+		bset.b	#1,(a5)
+		beq.s	loc_658
+		move.w	(a6),d5
+		moveq	#0,d7
+		andi.w	#2,d5
+		ori.w	#$40,d5
+		move.w	d5,(a6)
+		bsr.s	sub_68c
+		andi.w	#2,d5
+		ori.w	#$80,d5
+		move.w	d5,(a6)
+		bsr.s	sub_68c
+		andi.w	#2,d5
+		ori.w	#$c0,d5
+		move.w	d5,(a6)
+		bsr.s	sub_68c
+		andi.w	#2,d5
+		move.w	d5,(a6)
+sub_68c:
+		lea	$20000,a0
+		move.w	#$20000/4-1,d0
+loc_696:
+		move.l	d7,(a0)+
+		dbf	d0,loc_696
+		rts
+sub_69e:
+		lea	$a12001,a5
+loc_6a4:
+		bclr.b	#0,(a5)
+		bne.s	loc_6a4
+		lea	1(a5),a6
+		move.w	(a6),d5
+		andi.w	#2,d5
+		move.w	d5,(a6)
+		lea	lze_16000,a0
+		lea	$20000,a1
+		bsr.w	unlze
+		lea	lze_13000,a0
+		lea	$26000,a1
+		bsr.w	unlze
+		lea	lze_1a000,a0
+		lea	$38000,a1
+		bsr.w	unlze
+		move.b	#$2a,(a6)
+loc_6ea:
+		bset.b	#0,(a5)
+		beq.s	loc_6ea
+loc_6f0:
+		bclr.b	#1,(a5)
+		bne.s	loc_6f0
+		rts
+sub_6f8:
+		btst.b	#2,(a6)
+		bne.s	locret_714
+		btst.b	#0,(a6)
+		beq.s	locret_714
+		lea	$200000,a0
+		moveq	#-1,d0
+		moveq	#0,d7
+loc_70e:
+		move.l	d7,(a0)
+		dbf	d0,loc_70e
+locret_714:
+		rts
+sub_716:
+		move.b	REG_VERSION,d0
+		andi.b	#$c0,d0
+		bne.s	loc_724
+		rts
+loc_724:
+		ori.w	#$700,sr
+		jsr	$936(pc)
+		jsr	$13fc(pc)
+		lea	pal_754(pc),a1
+		move.l	#$c0000000,VDP_CTRL
+		move.l	(a1)+,VDP_DATA
+		move.l	#$46060003,d0
+		jsr	$13d4(pc)
+		jsr	$c7c(pc)
+loc_752:
+		bra.s	loc_752
+pal_754:
+		;	cyan,black
+		dc.w $ee0,$000
+		dc.b "              ERROR!"
+		dc.b 0
+		even
+		dc.b "THIS IS AN NTSC-COMPATIBLE MEGA-CD"
+		dc.b 0
+		dc.b "  FOR EXCLUSIVE USE IN JAPAN AND"
+		dc.b 0
+		dc.b "         SOUTHEAST ASIA."
+		dc.b $ff
+		even
+		include	unlze.asm
+sub_86c:
+		rte
 		align $b94
 tilemapsetup:
 		lea	VDP_DATA,a5
@@ -411,6 +512,52 @@ sub_101e:
 		rts
 		align $155c
 		include	mapdev.asm
+		align $9000
+		incbin	bitdev/9000.nem
+		even
+		incbin	bitdev/9248.nem
+		even
+		incbin	bitdev/9310.nem
+		even
+		incbin	bitdev/9588.nem
+		even
+		incbin	bitdev/95de.nem
+		even
+		incbin	bitdev/979a.nem
+		even
+		incbin	bitdev/9a7c.nem
+		even
+		incbin	bitdev/9b64.nem
+		even
+		incbin	bitdev/a184.nem
+		even
+		incbin	bitdev/a1f4.nem
+		even
+		align $a4ae
+		incbin	bitdev/a4ae.nem
+		even
+		incbin	bitdev/a4e0.nem
+		even
+		align $cafc
+		incbin	bitdev/cafc.nem
+		even
+		align $eece
+		incbin	bitdev/eece.nem
+		even
+		align $f168
+		incbin	bitdev/f168.nem
+		even
+		incbin	bitdev/f28a.nem
+		even
+		incbin	bitdev/f40c.nem
+		even
+		incbin	bitdev/f5f2.nem
+		even
+		align $f7dc
+		incbin	bitdev/f7dc.nem
+		even
+		incbin	bitdev/f8ee.nem
+		even
 		align $11000
 z80_11000:
 		incbin	sound/11000.bin
@@ -425,12 +572,15 @@ z80_12054:
 z80_12054_end:
 		even
 		align $13000
+lze_13000:
 		incbin	lze/13000.kos
 		even
 		align $16000
+lze_16000:
 		incbin	lze/16000.kos
 		even
 		align $1a000
+lze_1a000:
 		incbin	lze/1a000.kos
 		even
 		align $20000
