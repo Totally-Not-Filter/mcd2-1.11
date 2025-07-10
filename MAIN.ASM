@@ -99,15 +99,15 @@ _loop:
 		bra.w	loc_90a
 		bra.w	ctrlinput
 		bra.w	$1034
-		bra.w	$982
-		bra.w	$9a6
-		bra.w	$9e4
+		bra.w	sub_982
+		bra.w	loc_9a6
+		bra.w	sub_9e4
 		bra.w	sub_936
 		bra.w	loc_940
-		bra.w	$9ee
-		bra.w	$9ec
-		bra.w	$a1e
-		bra.w	$a20
+		bra.w	loc_9ee
+		bra.w	loc_9ec
+		bra.w	loc_a1e
+		bra.w	loc_a20
 		bra.w	tilemapsetup
 		bra.w	$bb8
 		bra.w	$c58
@@ -224,7 +224,7 @@ loc_43e:
 		bra.w	loc_576
 		include	source/icd_blk4.prg
 		jsr	sub_936.w
-		jsr	$982
+		jsr	sub_982.w
 		bsr.w	sub_716
 		bra.s	loc_584
 loc_576:
@@ -269,7 +269,7 @@ off_5d4:
 loc_5ee:
 		ori.w	#$700,sr
 		jsr	sub_936.w
-		jsr	$982
+		jsr	sub_982.w
 		bra.s	loc_592
 loc_5fc:
 		ori.w	#$700,sr
@@ -277,7 +277,7 @@ loc_5fc:
 loc_604:
 		ori.w	#$700,sr
 		jsr	sub_936.w
-		jsr	$982
+		jsr	sub_982.w
 		jsr	sub_3a4(pc)
 		bsr.w	$101e
 		jsr	z80load.w
@@ -460,21 +460,21 @@ loc_926:
 		move.w	$fffffdb4,VDP_CTRL
 		rts
 sub_936:
-		lea	vdp_962(pc),a1
+		lea	vdp_962(pc),a1	; load vdp table into a1 register
 		move.w	#$80,$fffffe2e
 loc_940:
 		lea	$fffffdb4,a2
-		moveq	#0,d0
+		moveq	#0,d0	; clear d0
 loc_946:
-		move.b	(a1),d0
-		bpl.s	locret_960
-		move.w	(a1)+,d1
-		cmpi.b	#$92,d0
-		bhi.s	loc_958
-		add.b	d0,d0
-		move.w	d1,(a2,d0.w)
+		move.b	(a1),d0	; get high bit
+		bpl.s	locret_960	; if zero, exit
+		move.w	(a1)+,d1	; get full word of vdp register
+		cmpi.b	#$92,d0	; is high bit $92?
+		bhi.s	loc_958	; if higher than $92, branch to loc_958
+		add.b	d0,d0	; multiply high bit by 2
+		move.w	d1,(a2,d0.w)	; store vdp register table into $ffffdb4
 loc_958:
-		move.w	d1,VDP_CTRL
+		move.w	d1,VDP_CTRL	; use vdp register
 		bra.s	loc_946
 locret_960:
 		rts
@@ -495,6 +495,73 @@ vdp_962:
 		dc.w $9100+%00000000
 		dc.w $9200+%00000000
 		dc.w 0
+sub_982:
+		move.l	#$c0000000,VDP_CTRL
+		move.w	#0,VDP_DATA
+		bsr.w	sub_9e4
+		move.l	#$40000000,d0
+		move.w	#$ffff,d1
+		bra.w	loc_a1e
+loc_9a6:
+		bsr.s	sub_9ca
+		bsr.w	sub_a0c
+		bsr.w	sub_a14
+		bra.w	loc_a00
+		move.l	#$7c000002,VDP_CTRL
+		move.l	#0,VDP_DATA
+		rts
+sub_9ca:
+		clr.l	$fffff900
+		move.l	#$78000002,VDP_CTRL
+		move.l	#0,VDP_DATA
+		rts
+sub_9e4:
+		move.l	#$40000010,d0
+		moveq	#$28-1,d1
+loc_9ec:
+		moveq	#0,d2
+loc_9ee:
+		move.l	d0,VDP_CTRL
+loc_9f4:
+		move.w	d2,VDP_DATA
+		dbf	d1,loc_9f4
+		rts
+loc_a00:
+		move.l	#$60000002,d0
+		move.w	#$dff,d1
+		bra.s	loc_a1e
+sub_a0c:
+		move.l	#$40000003,d0
+		bra.s	loc_a1a
+sub_a14:
+		move.l	#$60000003,d0
+loc_a1a:
+		move.w	#$1fff,d1
+loc_a1e:
+		moveq	#0,d2
+loc_a20:
+		lea	VDP_CTRL,a6
+		move.w	#$8f00+%00000001,(a6)
+		move.w	$fffffdb6,d3
+		bset	#4,d3
+		move.w	d3,(a6)
+		move.l	#$940000,d3
+		move.w	d1,d3
+		lsl.l	#8,d3
+		move.w	#$9300,d3
+		move.b	d1,d3
+		move.l	d3,(a6)
+		move.w	#$9780,(a6)
+		ori.l	#$40000080,d0
+		move.l	d0,(a6)
+		move.b	d2,VDP_DATA-VDP_CTRL(a6)
+loc_a56:
+		move.w	(a6),d3
+		btst	#1,d3
+		bne.s	loc_a56
+		move.w	$fffffdb6,(a6)
+		move.w	#$8f00+%00000010,(a6)
+		rts
 		align $b94
 tilemapsetup:
 		lea	VDP_DATA,a5
