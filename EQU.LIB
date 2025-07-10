@@ -1,9 +1,9 @@
 ; md VRAM tables
 vram_window_plane	EQU $a000
+vram_sprtbl	EQU	$b800
+vram_hscroll	EQU $bc00
 vram_plane_a	EQU	$c000
 vram_plane_b	EQU	$e000
-vram_sprtbl	EQU	$f800
-vram_hscroll	EQU $fc00
 
 ; z80 ram addresses
 z80start	EQU	$a00000

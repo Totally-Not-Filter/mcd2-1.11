@@ -95,15 +95,15 @@ _loop:
 		bra.w	init
 		bra.w	loc_604
 		bra.w	loc_5fc
-		bra.w	$8a6
-		bra.w	$90a
+		bra.w	loc_8a6
+		bra.w	loc_90a
 		bra.w	ctrlinput
 		bra.w	$1034
 		bra.w	$982
 		bra.w	$9a6
 		bra.w	$9e4
-		bra.w	$936
-		bra.w	$940
+		bra.w	sub_936
+		bra.w	loc_940
 		bra.w	$9ee
 		bra.w	$9ec
 		bra.w	$a1e
@@ -124,12 +124,12 @@ _loop:
 		bra.w	$16b6
 		bra.w	$16c2
 		bra.w	$16d4
-		bra.w	$8dc
-		bra.w	$8d6
+		bra.w	loc_8dc
+		bra.w	sub_8d6
 		bra.w	$1324
 		bra.w	$13c0
-		bra.w	$8f0
-		bra.w	$926
+		bra.w	loc_8f0
+		bra.w	loc_926
 		bra.w	$13d4
 		bra.w	$141a
 		bra.w	$140e
@@ -223,7 +223,7 @@ loc_43e:
 		bsr.w	sub_716
 		bra.w	loc_576
 		include	source/icd_blk4.prg
-		jsr	$936
+		jsr	sub_936.w
 		jsr	$982
 		bsr.w	sub_716
 		bra.s	loc_584
@@ -241,7 +241,7 @@ loc_592:
 		bsr.w	$101e
 		jsr	z80load.w
 		bsr.w	sub_69e
-		jsr	$8d6
+		jsr	sub_8d6.w
 		bsr.w	$1086
 		lea	$a1200f,a4
 loc_5b0:
@@ -268,7 +268,7 @@ off_5d4:
 		jmp	$ffff0000
 loc_5ee:
 		ori.w	#$700,sr
-		jsr	$936
+		jsr	sub_936.w
 		jsr	$982
 		bra.s	loc_592
 loc_5fc:
@@ -276,13 +276,13 @@ loc_5fc:
 		movea.l	0,sp
 loc_604:
 		ori.w	#$700,sr
-		jsr	$936
+		jsr	sub_936.w
 		jsr	$982
 		jsr	sub_3a4(pc)
 		bsr.w	$101e
 		jsr	z80load.w
 		bsr.w	sub_69e
-		jsr	$8d6
+		jsr	sub_8d6.w
 		bsr.w	$1086
 		lea	$a1200f,a4
 loc_62e:
@@ -374,7 +374,7 @@ sub_716:
 		rts
 loc_724:
 		ori.w	#$700,sr
-		jsr	$936(pc)
+		jsr	sub_936(pc)
 		jsr	$13fc(pc)
 		lea	pal_754(pc),a1
 		move.l	#$c0000000,VDP_CTRL
@@ -400,6 +400,101 @@ pal_754:
 		include	unlze.asm
 sub_86c:
 		rte
+sub_86e:
+		movem.l	d0-d7/a0-a6,-(sp)
+		bsr.w	$10b6
+		tst.b	$fffffe28
+		bne.s	loc_890
+		bsr.w	$cc4
+		btst.b	#1,$fffffe26
+		beq.s	loc_890
+		jsr	os_sys_ram_mint_ex
+		addq.b	#1,$fffffe27
+loc_890:
+		bsr.w	ctrlinput
+		clr.b	$fffffe26
+		bsr.w	$1120
+		bsr.w	$12d6
+		movem.l	(sp)+,d0-d7/a0-a6
+		rte
+loc_8a6:
+		movem.l	d0-d7/a0-a6,-(sp)
+		bsr.w	$10b6
+		tst.b	$fffffe28
+		bne.s	loc_8c8
+		bsr.w	$cc4
+		btst.b	#1,$fffffe26
+		beq.s	loc_8c8
+		jsr	os_sys_ram_mint_ex
+		addq.b	#1,$fffffe27
+loc_8c8:
+		bsr.w	ctrlinput
+		clr.b	$fffffe26
+		movem.l	(sp)+,d0-d7/a0-a6
+		rte
+sub_8d6:
+		ori.w	#$700,sr
+		moveq	#3,d0
+loc_8dc:
+		move.b	d0,$fffffe26
+		andi.w	#$f8ff,sr
+loc_8e4:
+		tst.b	$fffffe26
+		bne.s	loc_8e4
+		bsr.w	$14a2
+		rts
+loc_8f0:
+		move.l	a1,$fffffd0e
+		move.w	a1,$a12006
+		bset.b	#4,$fffffdb5
+		move.w	$fffffdb4,VDP_CTRL
+		rts
+loc_90a:
+		move.l	a1,$fffffd0e
+		move.w	#$fd0c,$a12006
+		bset.b	#4,$fffffdb5
+		move.w	$fffffdb4,VDP_CTRL
+		rts
+loc_926:
+		bclr.b	#4,$fffffdb5
+		move.w	$fffffdb4,VDP_CTRL
+		rts
+sub_936:
+		lea	vdp_962(pc),a1
+		move.w	#$80,$fffffe2e
+loc_940:
+		lea	$fffffdb4,a2
+		moveq	#0,d0
+loc_946:
+		move.b	(a1),d0
+		bpl.s	locret_960
+		move.w	(a1)+,d1
+		cmpi.b	#$92,d0
+		bhi.s	loc_958
+		add.b	d0,d0
+		move.w	d1,(a2,d0.w)
+loc_958:
+		move.w	d1,VDP_CTRL
+		bra.s	loc_946
+locret_960:
+		rts
+vdp_962:
+		dc.w $8000+%00000100
+		dc.w $8100+%00100100
+		dc.w $9000+%00010001
+		dc.w $8b00+%00000000
+		dc.w $8c00+%10000001
+		dc.w $8300+vram_window_plane>>10
+		dc.w $8200+vram_plane_a>>10
+		dc.w $8400+vram_plane_b>>13
+		dc.w $8500+vram_sprtbl>>9
+		dc.w $8d00+vram_hscroll>>10
+		dc.w $8700+%00000000
+		dc.w $8a00+%00000000
+		dc.w $8f00+%00000010
+		dc.w $9100+%00000000
+		dc.w $9200+%00000000
+		dc.w 0
 		align $b94
 tilemapsetup:
 		lea	VDP_DATA,a5
