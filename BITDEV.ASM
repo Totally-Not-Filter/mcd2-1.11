@@ -1,7 +1,7 @@
 bitdevdatr:
 		movem.l	d0-d7/a1-a5,-(sp)
 		lea	sub_e70(pc),a3
-		lea	VDP_CTRL,a2
+		lea	VDP_DATA,a2
 		bra.s	loc_e02
 bitdevramr:
 		movem.l	d0-d7/a1-a5,-(sp)

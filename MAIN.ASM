@@ -86,18 +86,18 @@ loc_200:
 		lea	os_sys_ram_reset,a0
 		move.w	#$4ef9,d0
 		move.w	d0,(a0)+
-		move.l	#$5ee,(a0)+
+		move.l	#loc_5ee,(a0)+
 _loop:
 		bra.s	_loop
 		rte
 		align $280
-		bra.w	$5ee
+		bra.w	loc_5ee
 		bra.w	init
-		bra.w	$604
-		bra.w	$5fc
+		bra.w	loc_604
+		bra.w	loc_5fc
 		bra.w	$8a6
 		bra.w	$90a
-		bra.w	0
+		bra.w	ctrlinput
 		bra.w	$1034
 		bra.w	$982
 		bra.w	$9a6
@@ -108,7 +108,7 @@ _loop:
 		bra.w	$9ec
 		bra.w	$a1e
 		bra.w	$a20
-		bra.w	0
+		bra.w	tilemapsetup
 		bra.w	$bb8
 		bra.w	$c58
 		bra.w	$a68
@@ -116,7 +116,7 @@ _loop:
 		bra.w	$c7c
 		bra.w	$c96
 		bra.w	$cac
-		bra.w	0
+		bra.w	palload
 		bra.w	$cc4
 		bra.w	bitdevdatr
 		bra.w	bitdevramr
@@ -149,7 +149,7 @@ _loop:
 		bra.w	$12be
 		bra.w	$4606
 		bra.w	$4618
-		bra.w	$41a
+		bra.w	sub_41a
 		bra.w	$c06
 		bra.w	$c2c
 		bra.w	$b2e
@@ -168,7 +168,7 @@ sub_3a4:
 		lea	os_sys_ram_reset,a0
 		move.w	#$4ef9,d0
 		move.w	d0,(a0)+
-		move.l	#$5ee,(a0)+
+		move.l	#loc_5ee,(a0)+
 		move.w	d0,(a0)+
 		move.l	#$86e,(a0)+
 		lea	$86c,a1
@@ -192,7 +192,7 @@ _loop2:
 		tst.b	(a2)
 		bpl.s	_end
 		lea	$f(a2),a2
-		moveq	#RAM_CARTRIDG_END-RAM_CARTRIDG-1,d1
+		moveq	#(RAM_CARTRIDG_END-RAM_CARTRIDG)/2-1,d1
 _loop3:
 		cmpm.w	(a1)+,(a2)+
 		dbne	d1,_loop3
@@ -218,10 +218,10 @@ init:
 		movea.l	0,sp
 loc_43e:
 		move.w	VDP_CTRL,d3
-		btst	#3,d3
+		btst	#1,d3
 		bne.s	loc_43e
 		bsr.w	$716
-		bra.w	$576
+		bra.w	loc_576
 		include	source/icd_blk4.prg
 		jsr	$936
 		jsr	$982
@@ -229,7 +229,7 @@ loc_43e:
 		bra.s	loc_584
 loc_576:
 		cmpi.w	#$4ef9,os_sys_ram_reset
-		bne.w	$5ee
+		bne.w	loc_5ee
 		jmp	os_sys_ram
 loc_584:
 		moveq	#-1,d1
@@ -237,9 +237,98 @@ loc_584:
 		bsr.w	$64e
 		bsr.w	$6f8
 loc_592:
-		jsr	sub_3a4
+		jsr	sub_3a4(pc)
 		bsr.w	$101e
-		jsr	z80load
+		jsr	z80load.w
+		bsr.w	$69e
+		jsr	$8d6
+		bsr.w	$1086
+		lea	$a1200f,a4
+loc_5b0:
+		move.b	(a4),d0
+		bne.s	loc_5b0
+		moveq	#1,d0
+		moveq	#4,d1
+		jsr	$12be(pc)
+		moveq	#4,d0
+		jsr	$644.l
+loc_5c4:
+		lea	$fffffdda,a0
+		move.w	(a0),d0
+		andi.w	#$7ffc,d0
+		jsr	off_5d4(pc,d0.w)
+		bra.s	loc_5c4
+off_5d4:
+		nop
+		rts
+		bra.w	$1960
+		bra.w	$1f78
+		bra.w	$45b2
+		bra.w	$47b2
+		jmp	$ffff0000
+loc_5ee:
+		ori.w	#$700,sr
+		jsr	$936
+		jsr	$982
+		bra.s	loc_592
+loc_5fc:
+		ori.w	#$700,sr
+		movea.l	0,sp
+loc_604:
+		ori.w	#$700,sr
+		jsr	$936
+		jsr	$982
+		jsr	sub_3a4(pc)
+		bsr.w	$101e
+		jsr	z80load.w
+		bsr.w	$69e
+		jsr	$8d6
+		bsr.w	$1086
+		lea	$a1200f,a4
+loc_62e:
+		move.b	(a4),d0
+		bne.s	loc_62e
+		bsr.w	$1182
+		moveq	#1,d0
+		moveq	#8,d1
+		jsr	$12be(pc)
+		moveq	#8,d0
+		bsr.s	sub_644
+		bra.s	loc_5c4
+sub_644:
+		andi.w	#$1c,d0
+		move.w	d0,$fffffdda
+		rts
+		align $b94
+tilemapsetup:
+		lea	VDP_DATA,a5
+		move.w	#0,-(sp)
+		move.w	$fffffe2e,-(sp)
+loc_ba2:
+		move.l	d0,VDP_CTRL-VDP_DATA(a5)
+		move.w	d1,d3
+loc_ba8:
+		move.w	(a1)+,(a5)
+		dbf	d3,loc_ba8
+		add.l	(sp),d0
+		dbf	d2,loc_ba2
+		addq.w	#4,sp
+		rts
+		align $ca6
+palload:
+		bset.b	#0,$fffffe29
+loc_cac:
+		move.l	a3,-(sp)
+		moveq	#0,d0
+		move.b	(a1)+,d0
+		lea	color_ram,a3
+		adda.w	d0,a3
+		move.b	(a1)+,d0
+loc_cba:
+		move.w	(a1)+,(a3)+
+		dbf	d0,loc_cba
+		movea.l	(sp)+,a3
+		rts
 		align $dea
 		include	bitdev.asm
 z80load:
@@ -273,6 +362,52 @@ _loop4:
 		move.w	#$000,(a4)
 		move.w	#$100,z80reset-z80busreq(a4)
 		move.w	(sp)+,sr
+		rts
+sub_f98:
+		move.b	#$e3,d7
+sndset:
+		move.w	sr,-(sp)
+		ori.w	#$700,sr
+		z80bus_on
+		z80bus_wait
+		move.b	d7,z80start+$1c0a
+		z80bus_off
+		move.w	(sp)+,sr
+		rts
+ctrlinput:
+		z80bus_on
+		z80bus_wait
+		bsr.s	sub_fe4
+		z80bus_off
+		rts
+sub_fe4:
+		lea	$fffffe20,a5
+		lea	REG_DATA1,a6
+		bsr.w	sub_ff4
+		addq.w	#2,a6
+sub_ff4:
+		move.b	#0,(a6)
+		nop
+		nop
+		move.b	(a6),d7
+		asl.b	#2,d7
+		move.b	#$40,(a6)
+		andi.w	#$c0,d7
+		move.b	(a6),d6
+		andi.w	#$3f,d6
+		or.b	d6,d7
+		not.b	d7
+		move.b	(a5),d6
+		eor.b	d7,d6
+		move.b	d7,(a5)+
+		and.b	d7,d6
+		move.b	d6,(a5)+
+		rts
+sub_101e:
+		moveq	#$40,d7
+		move.b	d7,REG_CTRL1
+		move.b	d7,REG_CTRL2
+		move.b	d7,REG_CTRL3
 		rts
 		align $155c
 		include	mapdev.asm

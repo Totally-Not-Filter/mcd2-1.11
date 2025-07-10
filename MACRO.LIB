@@ -25,7 +25,7 @@ z80bus_off	macro
 	endm
 
 z80bus_wait	macro
-?loop1:
+_loop1:
 	btst.b	#0,z80busreq		; if bit on then bus req ok.
-	bne.s	?loop1
+	bne.s	_loop1
 	endm
