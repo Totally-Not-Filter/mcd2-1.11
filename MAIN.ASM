@@ -84,7 +84,7 @@ vectortbl:
 		dc.b "J               "
 loc_200:
 		lea	os_sys_ram_reset,a0
-		move.w	#$4ef9,d0
+		move.w	#$4ef9,d0	; jmp (longword)
 		move.w	d0,(a0)+
 		move.l	#loc_5ee,(a0)+
 _loop:
@@ -111,8 +111,8 @@ _loop:
 		bra.w	tilemapsetup
 		bra.w	$bb8
 		bra.w	$c58
-		bra.w	$a68
-		bra.w	$abe
+		bra.w	loc_a68
+		bra.w	sub_abe
 		bra.w	$c7c
 		bra.w	$c96
 		bra.w	$cac
@@ -166,7 +166,7 @@ _loop:
 		bra.w	$150a
 sub_3a4:
 		lea	os_sys_ram_reset,a0
-		move.w	#$4ef9,d0
+		move.w	#$4ef9,d0	; jmp (longword)
 		move.w	d0,(a0)+
 		move.l	#loc_5ee,(a0)+
 		move.w	d0,(a0)+
@@ -228,7 +228,7 @@ loc_43e:
 		bsr.w	sub_716
 		bra.s	loc_584
 loc_576:
-		cmpi.w	#$4ef9,os_sys_ram_reset
+		cmpi.w	#$4ef9,os_sys_ram_reset	; jmp (longword)
 		bne.w	loc_5ee
 		jmp	os_sys_ram
 loc_584:
@@ -446,24 +446,24 @@ loc_8e4:
 loc_8f0:
 		move.l	a1,$fffffd0e
 		move.w	a1,$a12006
-		bset.b	#4,$fffffdb5
-		move.w	$fffffdb4,VDP_CTRL
+		bset.b	#4,rg3_dat+1
+		move.w	rg3_dat,VDP_CTRL
 		rts
 loc_90a:
 		move.l	a1,$fffffd0e
 		move.w	#$fd0c,$a12006
-		bset.b	#4,$fffffdb5
-		move.w	$fffffdb4,VDP_CTRL
+		bset.b	#4,rg3_dat+1
+		move.w	rg3_dat,VDP_CTRL
 		rts
 loc_926:
 		bclr.b	#4,$fffffdb5
-		move.w	$fffffdb4,VDP_CTRL
+		move.w	rg3_dat,VDP_CTRL
 		rts
 sub_936:
 		lea	vdp_962(pc),a1	; load vdp table into a1 register
 		move.w	#$80,$fffffe2e
 loc_940:
-		lea	$fffffdb4,a2
+		lea	rg3_dat,a2
 		moveq	#0,d0	; clear d0
 loc_946:
 		move.b	(a1),d0	; get high bit
@@ -517,7 +517,7 @@ sub_9ca:
 		rts
 sub_9e4:
 		move.l	#$40000010,d0
-		moveq	#$28-1,d1
+		moveq	#$50/2-1,d1
 loc_9ec:
 		moveq	#0,d2
 loc_9ee:
@@ -542,7 +542,7 @@ loc_a1e:
 loc_a20:
 		lea	VDP_CTRL,a6
 		move.w	#$8f00+%00000001,(a6)
-		move.w	$fffffdb6,d3
+		move.w	rg4_dat,d3
 		bset	#4,d3
 		move.w	d3,(a6)
 		move.l	#$940000,d3
@@ -559,8 +559,77 @@ loc_a56:
 		move.w	(a6),d3
 		btst	#1,d3
 		bne.s	loc_a56
-		move.w	$fffffdb6,(a6)
+		move.w	rg4_dat,(a6)
 		move.w	#$8f00+%00000010,(a6)
+		rts
+loc_a68:
+		lea	VDP_CTRL,a6
+		move.w	rg4_dat,d3
+		bset	#4,d3
+		move.w	d3,(a6)
+		asr.l	#1,d1
+		move.l	#$940000,d3
+		move.w	d2,d3
+		lsl.l	#8,d3
+		move.w	#$9300,d3
+		move.b	d2,d3
+		move.l	d3,(a6)
+		move.l	#$960000,d3
+		move.w	d1,d3
+		lsl.l	#8,d3
+		move.w	#$9500,d3
+		move.b	d1,d3
+		move.l	d3,(a6)
+		swap	d1
+		move.w	#$9700,d3
+		move.b	d1,d3
+		move.w	d3,(a6)
+		ori.l	#$40000080,d0
+		swap	d0
+		move.w	d0,(a6)
+		swap	d0
+		move.w	d0,-(sp)
+		move.w	(sp)+,(a6)
+		move.w	rg4_dat,(a6)
+		rts
+sub_abe:
+		move.l	a1,-(sp)
+		movea.l	d1,a1
+		addq.l	#2,d1
+		asr.l	#1,d1
+		lea	VDP_CTRL,a6
+		move.w	#$8f00+%00000010,(a6)
+		move.w	rg4_dat,d3
+		bset	#4,d3
+		move.w	d3,(a6)
+		move.l	#$940000,d3
+		move.w	d2,d3
+		lsl.l	#8,d3
+		move.w	#$9300,d3
+		move.b	d2,d3
+		move.l	d3,(a6)
+		move.l	#$960000,d3
+		move.w	d1,d3
+		lsl.l	#8,d3
+		move.w	#$9500,d3
+		move.b	d1,d3
+		move.l	d3,(a6)
+		swap	d1
+		move.w	#$9700,d3
+		move.b	d1,d3
+		move.w	d3,(a6)
+		ori.l	#$40000080,d0
+		swap	d0
+		move.w	d0,(a6)
+		swap	d0
+		move.w	d0,-(sp)
+		move.w	(sp)+,(a6)
+		move.w	rg4_dat,(a6)
+		andi.w	#$ff7f,d0
+		move.l	d0,(a6)
+		move.l	(a1),VDP_DATA-VDP_CTRL(a6)
+		move.w	rg18_dat,(a6)
+		movea.l	(sp)+,a1
 		rts
 		align $b94
 tilemapsetup:
