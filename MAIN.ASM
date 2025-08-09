@@ -152,7 +152,7 @@ _loop:
 		bra.w	sub_41a
 		bra.w	$c06
 		bra.w	$c2c
-		bra.w	$b2e
+		bra.w	loc_b2e
 		bra.w	$11ee
 		bra.w	$3878
 		bra.w	$14b4
@@ -472,28 +472,28 @@ loc_946:
 		cmpi.b	#$92,d0	; is high bit $92?
 		bhi.s	loc_958	; if higher than $92, branch to loc_958
 		add.b	d0,d0	; multiply high bit by 2
-		move.w	d1,(a2,d0.w)	; store vdp register table into $ffffdb4
+		move.w	d1,(a2,d0.w)	; store vdp register table into rg3_dat
 loc_958:
 		move.w	d1,VDP_CTRL	; use vdp register
 		bra.s	loc_946
 locret_960:
 		rts
 vdp_962:
-		dc.w $8000+%00000100
+		dc.w $8000+%0100
 		dc.w $8100+%00100100
 		dc.w $9000+%00010001
-		dc.w $8b00+%00000000
+		dc.w $8b00+%0000
 		dc.w $8c00+%10000001
 		dc.w $8300+vram_window_plane>>10
 		dc.w $8200+vram_plane_a>>10
 		dc.w $8400+vram_plane_b>>13
 		dc.w $8500+vram_sprtbl>>9
 		dc.w $8d00+vram_hscroll>>10
-		dc.w $8700+%00000000
-		dc.w $8a00+%00000000
-		dc.w $8f00+%00000010
-		dc.w $9100+%00000000
-		dc.w $9200+%00000000
+		dc.w $8700+%0000
+		dc.w $8a00+%0000
+		dc.w $8f00+%0010
+		dc.w $9100+%0000
+		dc.w $9200+%0000
 		dc.w 0
 sub_982:
 		move.l	#$c0000000,VDP_CTRL
@@ -541,7 +541,7 @@ loc_a1e:
 		moveq	#0,d2
 loc_a20:
 		lea	VDP_CTRL,a6
-		move.w	#$8f00+%00000001,(a6)
+		move.w	#$8f00+%0001,(a6)
 		move.w	rg4_dat,d3
 		bset	#4,d3
 		move.w	d3,(a6)
@@ -560,7 +560,7 @@ loc_a56:
 		btst	#1,d3
 		bne.s	loc_a56
 		move.w	rg4_dat,(a6)
-		move.w	#$8f00+%00000010,(a6)
+		move.w	#$8f00+%0010,(a6)
 		rts
 loc_a68:
 		lea	VDP_CTRL,a6
@@ -598,7 +598,7 @@ sub_abe:
 		addq.l	#2,d1
 		asr.l	#1,d1
 		lea	VDP_CTRL,a6
-		move.w	#$8f00+%00000010,(a6)
+		move.w	#$8f00+%0010,(a6)
 		move.w	rg4_dat,d3
 		bset	#4,d3
 		move.w	d3,(a6)
@@ -631,7 +631,40 @@ sub_abe:
 		move.w	rg18_dat,(a6)
 		movea.l	(sp)+,a1
 		rts
-		align $b94
+loc_b2e:
+		lea	VDP_CTRL,a6
+		move.w	#$8f00+%0001,(a6)
+		move.w	rg4_dat,d3
+		bset	#4,d3
+		move.w	d3,(a6)
+		move.l	#$940000,d3
+		move.w	d2,d3
+		lsl.l	#8,d3
+		move.w	#$9300,d3
+		move.b	d2,d3
+		move.l	d3,(a6)
+		move.l	#$960000,d3
+		move.w	d1,d3
+		lsl.l	#8,d3
+		move.w	#$9500,d3
+		move.b	d1,d3
+		move.l	d3,(a6)
+		move.w	#$9700+$c0,(a6)
+		ori.w	#$c0,d0
+		move.l	d0,(a6)
+loc_b70:
+		move.w	(a6),d3
+		btst	#1,d3
+		bne.s	loc_b70
+		move.w	rg4_dat,(a6)
+		move.w	#$8f00+%0010,(a6)
+		rts
+; unused
+		move.l	d0,VDP_CTRL
+loc_b88:
+		move.w	VDP_DATA,(a2)+
+		dbf	d1,loc_b88
+		rts
 tilemapsetup:
 		lea	VDP_DATA,a5
 		move.w	#0,-(sp)
