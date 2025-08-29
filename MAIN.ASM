@@ -170,8 +170,8 @@ sub_3a4:
 		move.w	d0,(a0)+
 		move.l	#loc_5ee,(a0)+
 		move.w	d0,(a0)+
-		move.l	#$86e,(a0)+
-		lea	$86c,a1
+		move.l	#sub_86e,(a0)+
+		lea	sub_86c,a1
 		moveq	#$12-1,d1
 _loop1:
 		move.w	d0,(a0)+
@@ -323,7 +323,7 @@ loc_658:
 		move.w	d5,(a6)
 sub_68c:
 		lea	$20000,a0
-		move.w	#$20000/4-1,d0
+		move.w	#($20000)/4-1,d0
 loc_696:
 		move.l	d7,(a0)+
 		dbf	d0,loc_696
@@ -517,7 +517,7 @@ sub_9ca:
 		rts
 sub_9e4:
 		move.l	#$40000010,d0
-		moveq	#$50/2-1,d1
+		moveq	#($50)/2-1,d1
 loc_9ec:
 		moveq	#0,d2
 loc_9ee:
@@ -551,7 +551,7 @@ loc_a20:
 		move.w	#$9300,d3
 		move.b	d1,d3
 		move.l	d3,(a6)
-		move.w	#$9780,(a6)
+		move.w	#$9700+$80,(a6)
 		ori.l	#$40000080,d0
 		move.l	d0,(a6)
 		move.b	d2,VDP_DATA-VDP_CTRL(a6)
